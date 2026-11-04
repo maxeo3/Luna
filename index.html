@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Luna · Diario del Ciclo & Gravidanza</title>
+    
+    <!-- META TAGS PER PWA & APPLE -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Luna">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <meta name="theme-color" content="#FDF8F5">
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -13,6 +23,8 @@
             --primary-light: #F7E5E0;
             --secondary: #8B5E75;
             --accent-fertile: #7DA2A9;
+            --accent-fertile-light: #E2ECED;
+            --ovulation-color: #9B5DE5;
             --pregnancy-color: #E29578;
             --pregnancy-light: #F8E9E3;
             --text-main: #3D2C2E;
@@ -197,8 +209,8 @@
         }
         .chip.selected { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* CALENDAR */
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-top: 10px; }
+        /* CALENDAR STYLES IMPROVED */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-top: 10px; }
         .cal-day-name { font-size: 0.75rem; font-weight: bold; color: var(--text-muted); padding: 4px 0; }
         .cal-day {
             aspect-ratio: 1;
@@ -209,10 +221,13 @@
             border-radius: 50%;
             cursor: pointer;
             position: relative;
+            font-weight: 500;
         }
-        .cal-day.today { border: 2px solid var(--primary); font-weight: bold; }
-        .cal-day.period { background: var(--primary); color: white; }
-        .cal-day.fertile { background: var(--accent-fertile); color: white; }
+        .cal-day.today { border: 2px solid var(--text-main); font-weight: 800; }
+        .cal-day.period { background: var(--primary); color: white; font-weight: bold; }
+        .cal-day.predicted-period { background: var(--primary-light); color: var(--primary); border: 1.5px dashed var(--primary); }
+        .cal-day.fertile { background: var(--accent-fertile-light); color: var(--accent-fertile); font-weight: bold; }
+        .cal-day.ovulation { background: var(--ovulation-color); color: white; font-weight: bold; }
 
         /* LISTS */
         .history-item {
@@ -322,9 +337,11 @@
 
             <div class="card">
                 <h4>Legenda</h4>
-                <div style="display: flex; gap: 12px; margin-top: 10px; font-size: 0.8rem; flex-wrap: wrap;">
-                    <span><span style="color:var(--primary)">🔴</span> Mestruazione</span>
-                    <span><span style="color:var(--accent-fertile)">🔵</span> Fertilità / Ovulazione</span>
+                <div style="display: flex; gap: 10px; margin-top: 10px; font-size: 0.8rem; flex-wrap: wrap;">
+                    <span>🔴 Mestruazione</span>
+                    <span>🌸 Previsione</span>
+                    <span>🔵 Fertilità</span>
+                    <span>🟣 Ovulazione</span>
                 </div>
             </div>
         </div>
@@ -419,7 +436,7 @@
                 <h3>Attiva Modalità Gravidanza 👶</h3>
                 <button onclick="closeStartPregnancyModal()" style="border:none; background:none; font-size: 1.2rem; cursor:pointer;">×</button>
             </div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Inserisci la data dell'ultima mestruazione (UM) o la Data Presunta del Parto se la conosci già.</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Inserisci la data dell'ultima mestruazione (UM).</p>
             
             <div class="form-section">
                 <label style="font-size:0.8rem; font-weight:bold;">Data Inizio Gravidanza / Ultima Mestruazione</label>
@@ -457,14 +474,18 @@
     </nav>
 
 <script>
-    // DATI STATO APP
+    // REGISTRAZIONE SERVICE WORKER PER INSTALLAZIONE PWA SU TELEFONO
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW reg error:', err));
+    }
+
     let appData = {
         cycleLength: 28,
         periodLength: 5,
-        periods: [],         // Date inizio ciclo
-        logs: {},            // Sintomi e note
-        isPregnant: false,   // Stato Gravidanza
-        pregnancyStart: null // Data inizio gravidanza
+        periods: [],         
+        logs: {},            
+        isPregnant: false,   
+        pregnancyStart: null 
     };
 
     let currentDateView = new Date();
@@ -499,7 +520,6 @@
     }
 
     function updateUI() {
-        // SE IN GRAVIDANZA
         if(appData.isPregnant) {
             document.getElementById('view-normal-cycle').classList.add('hidden');
             document.getElementById('view-pregnancy').classList.remove('hidden');
@@ -515,25 +535,21 @@
 
             document.getElementById('preg-weeks-num').innerText = `${weeks}+${days}`;
 
-            // Trimestre
             let trimester = "1° Trimestre";
             if(weeks >= 14 && weeks < 28) trimester = "2° Trimestre";
             else if(weeks >= 28) trimester = "3° Trimestre";
             document.getElementById('preg-trimester-badge').innerText = trimester;
 
-            // Data Presunta Parto (40 settimane = 280 giorni)
             const dueDate = new Date(startDate);
             dueDate.setDate(dueDate.getDate() + 280);
             document.getElementById('stat-due-date').innerText = dueDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
 
-            // Giorni rimanenti
             const daysLeft = Math.max(0, Math.floor((dueDate - today) / (1000 * 60 * 60 * 24)));
             document.getElementById('stat-days-left').innerText = daysLeft;
 
             return;
         }
 
-        // SE IN MODALITÀ CICLO NORMALE
         document.getElementById('view-pregnancy').classList.add('hidden');
         document.getElementById('view-normal-cycle').classList.remove('hidden');
         document.getElementById('flow-section').style.display = 'block';
@@ -595,7 +611,6 @@
         const endDate = document.getElementById('preg-end-date').value;
         if(endDate) {
             appData.isPregnant = false;
-            // Opzionale: aggiunge la data come nuova mestruazione/capoparto
             if(confirm("Vuoi segnare questa data come inizio del nuovo ciclo?")) {
                 appData.periods.push(endDate);
             }
@@ -635,7 +650,7 @@
         closeLogModal();
     }
 
-    /* CALENDARIO */
+    /* CALENDARIO AVANZATO: RICONOSCE TUTTI I GIORNI E LE PREVISIONI */
     function changeMonth(dir) {
         currentDateView.setMonth(currentDateView.getMonth() + dir);
         renderCalendar();
@@ -661,6 +676,52 @@
 
         const todayStr = new Date().toISOString().split('T')[0];
 
+        // Costruzione Mappa Date
+        let periodDays = new Set();
+        let predictedPeriodDays = new Set();
+        let fertileDays = new Set();
+        let ovulationDays = new Set();
+
+        if (appData.periods.length > 0) {
+            appData.periods.sort((a,b) => new Date(a) - new Date(b));
+            
+            // Cicli Passati
+            appData.periods.forEach(pStartStr => {
+                let pStart = new Date(pStartStr);
+                for(let i=0; i<appData.periodLength; i++) {
+                    let d = new Date(pStart);
+                    d.setDate(d.getDate() + i);
+                    periodDays.add(d.toISOString().split('T')[0]);
+                }
+            });
+
+            // Calcolo Previsioni Cicli Futuri (fino a 6 mesi)
+            let lastStart = new Date(appData.periods[appData.periods.length - 1]);
+            for(let c=0; c<6; c++) {
+                let nextStart = new Date(lastStart);
+                nextStart.setDate(nextStart.getDate() + appData.cycleLength * (c + 1));
+                
+                // Previsione mestruazioni
+                for(let i=0; i<appData.periodLength; i++) {
+                    let d = new Date(nextStart);
+                    d.setDate(d.getDate() + i);
+                    predictedPeriodDays.add(d.toISOString().split('T')[0]);
+                }
+
+                // Ovulazione (14 giorni prima del prossimo ciclo)
+                let ovDay = new Date(nextStart);
+                ovDay.setDate(ovDay.getDate() - 14);
+                ovulationDays.add(ovDay.toISOString().split('T')[0]);
+
+                // Finestra Fertile (-4gg e +1gg attorno all'ovulazione)
+                for(let f=-4; f<=1; f++) {
+                    let fDay = new Date(ovDay);
+                    fDay.setDate(fDay.getDate() + f);
+                    fertileDays.add(fDay.toISOString().split('T')[0]);
+                }
+            }
+        }
+
         for(let day=1; day<=daysInMonth; day++) {
             const dayDiv = document.createElement('div');
             dayDiv.className = 'cal-day';
@@ -669,7 +730,16 @@
             const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
             
             if(dateStr === todayStr) dayDiv.classList.add('today');
-            if(appData.periods.includes(dateStr)) dayDiv.classList.add('period');
+
+            if(periodDays.has(dateStr)) {
+                dayDiv.classList.add('period');
+            } else if(predictedPeriodDays.has(dateStr)) {
+                dayDiv.classList.add('predicted-period');
+            } else if(ovulationDays.has(dateStr)) {
+                dayDiv.classList.add('ovulation');
+            } else if(fertileDays.has(dateStr)) {
+                dayDiv.classList.add('fertile');
+            }
 
             grid.appendChild(dayDiv);
         }
