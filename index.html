@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Luna · Diario del Ciclo & Gravidanza</title>
     
-    <!-- META TAGS PER PWA & APPLE -->
+    <!-- META TAGS PER INSTALLAZIONE PWA SU TELEFONO -->
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -168,7 +168,7 @@
             margin-top: 10px;
         }
 
-        /* LOGGING MODAL / FORM */
+        /* MODALI */
         .modal {
             display: none;
             position: fixed;
@@ -209,7 +209,7 @@
         }
         .chip.selected { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* CALENDAR STYLES IMPROVED */
+        /* CALENDARIO MIGLIORATO */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-top: 10px; }
         .cal-day-name { font-size: 0.75rem; font-weight: bold; color: var(--text-muted); padding: 4px 0; }
         .cal-day {
@@ -229,7 +229,6 @@
         .cal-day.fertile { background: var(--accent-fertile-light); color: var(--accent-fertile); font-weight: bold; }
         .cal-day.ovulation { background: var(--ovulation-color); color: white; font-weight: bold; }
 
-        /* LISTS */
         .history-item {
             display: flex;
             justify-content: space-between;
@@ -251,9 +250,8 @@
 
     <div class="container">
         
-        <!-- SEZIONE DASHBOARD CICLO NORME -->
+        <!-- DASHBOARD -->
         <div id="sec-dashboard">
-            <!-- VISTA CICLO STANDARD -->
             <div id="view-normal-cycle">
                 <div class="card status-hero">
                     <div class="phase-badge" id="dash-phase">Fase Mestruale</div>
@@ -285,7 +283,6 @@
                 </button>
             </div>
 
-            <!-- VISTA MODALITÀ GRAVIDANZA -->
             <div id="view-pregnancy" class="hidden">
                 <div class="card status-hero pregnancy-mode">
                     <div class="phase-badge preg-badge" id="preg-trimester-badge">1° Trimestre</div>
@@ -318,7 +315,7 @@
             </div>
         </div>
 
-        <!-- SEZIONE CALENDARIO -->
+        <!-- CALENDARIO -->
         <div id="sec-calendar" class="hidden">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -346,7 +343,7 @@
             </div>
         </div>
 
-        <!-- SEZIONE FASI & INFO -->
+        <!-- GUIDA FASI -->
         <div id="sec-info" class="hidden">
             <div class="card">
                 <h3 style="color: var(--primary); margin-bottom: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Guida & Benessere</h3>
@@ -367,7 +364,7 @@
             </div>
         </div>
 
-        <!-- SEZIONE STORICO -->
+        <!-- STORICO -->
         <div id="sec-history" class="hidden">
             <div class="card">
                 <h3>Storico Cicli & Gravidanze</h3>
@@ -378,7 +375,7 @@
 
     </div>
 
-    <!-- MODALE REGISTRAZIONE GIORNALIERA -->
+    <!-- MODALI -->
     <div class="modal" id="log-modal">
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -429,7 +426,6 @@
         </div>
     </div>
 
-    <!-- MODALE INIZIO GRAVIDANZA -->
     <div class="modal" id="start-preg-modal">
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -447,7 +443,6 @@
         </div>
     </div>
 
-    <!-- MODALE FINE GRAVIDANZA -->
     <div class="modal" id="end-preg-modal">
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -474,11 +469,6 @@
     </nav>
 
 <script>
-    // REGISTRAZIONE SERVICE WORKER PER INSTALLAZIONE PWA SU TELEFONO
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW reg error:', err));
-    }
-
     let appData = {
         cycleLength: 28,
         periodLength: 5,
@@ -590,7 +580,6 @@
         document.getElementById('stat-fertile').innerText = `${fertileStart.getDate()} - ${ovulationDay.getDate() + 2} ${ovulationDay.toLocaleDateString('it-IT', {month:'short'})}`;
     }
 
-    /* GRAVIDANZA CONTROLS */
     function openStartPregnancyModal() { document.getElementById('start-preg-modal').classList.add('active'); }
     function closeStartPregnancyModal() { document.getElementById('start-preg-modal').classList.remove('active'); }
 
@@ -620,7 +609,6 @@
         }
     }
 
-    /* MODALE LOG */
     function openLogModal() { document.getElementById('log-modal').classList.add('active'); }
     function closeLogModal() { document.getElementById('log-modal').classList.remove('active'); }
 
@@ -650,7 +638,7 @@
         closeLogModal();
     }
 
-    /* CALENDARIO AVANZATO: RICONOSCE TUTTI I GIORNI E LE PREVISIONI */
+    /* CALENDARIO MIGLIORATO */
     function changeMonth(dir) {
         currentDateView.setMonth(currentDateView.getMonth() + dir);
         renderCalendar();
@@ -676,7 +664,6 @@
 
         const todayStr = new Date().toISOString().split('T')[0];
 
-        // Costruzione Mappa Date
         let periodDays = new Set();
         let predictedPeriodDays = new Set();
         let fertileDays = new Set();
@@ -695,25 +682,22 @@
                 }
             });
 
-            // Calcolo Previsioni Cicli Futuri (fino a 6 mesi)
+            // Calcolo Previsioni Cicli Futuri
             let lastStart = new Date(appData.periods[appData.periods.length - 1]);
             for(let c=0; c<6; c++) {
                 let nextStart = new Date(lastStart);
                 nextStart.setDate(nextStart.getDate() + appData.cycleLength * (c + 1));
                 
-                // Previsione mestruazioni
                 for(let i=0; i<appData.periodLength; i++) {
                     let d = new Date(nextStart);
                     d.setDate(d.getDate() + i);
                     predictedPeriodDays.add(d.toISOString().split('T')[0]);
                 }
 
-                // Ovulazione (14 giorni prima del prossimo ciclo)
                 let ovDay = new Date(nextStart);
                 ovDay.setDate(ovDay.getDate() - 14);
                 ovulationDays.add(ovDay.toISOString().split('T')[0]);
 
-                // Finestra Fertile (-4gg e +1gg attorno all'ovulazione)
                 for(let f=-4; f<=1; f++) {
                     let fDay = new Date(ovDay);
                     fDay.setDate(fDay.getDate() + f);
@@ -745,7 +729,6 @@
         }
     }
 
-    /* STORICO */
     function renderHistory() {
         const list = document.getElementById('history-list');
         list.innerHTML = '';
