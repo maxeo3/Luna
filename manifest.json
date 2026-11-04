@@ -1,11 +1,11 @@
 {
-  "name": "TravelPack Pro",
-  "short_name": "TravelPack",
+  "name": "Luna - Diario del Ciclo",
+  "short_name": "Luna",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#f0f2f5",
-  "theme_color": "#2a9d8f",
-  "description": "Lista oggetti per viaggi",
+  "background_color": "#FDF8F5",
+  "theme_color": "#D8705A",
+  "description": "Diario del ciclo e benessere femminile",
   "icons": [
     {
       "src": "icon.svg",
