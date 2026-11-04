@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Luna · Diario del Ciclo & Gravidanza</title>
     
-    <!-- META TAGS PER INSTALLAZIONE PWA SU TELEFONO -->
+    <!-- META TAGS PER INSTALLAZIONE PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Luna">
-    <link rel="apple-touch-icon" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FDF8F5">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -35,207 +35,63 @@
             --shadow: 0 4px 15px rgba(216, 112, 90, 0.08);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 90px; max-width: 500px; margin: 0 auto; min-height: 100vh; }
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            padding-bottom: 90px;
-            max-width: 500px;
-            margin: 0 auto;
-            min-height: 100vh;
-        }
-
-        /* HEADER */
-        header {
-            padding: 20px 20px 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        header { padding: 20px 20px 10px; display: flex; justify-content: space-between; align-items: center; }
         .app-title { font-size: 1.5rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
         .header-btn { background: var(--primary-light); border: none; color: var(--primary); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1rem; }
 
-        /* NAV TABS */
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 500px;
-            background: var(--card-bg);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
-            border-top: 1px solid var(--border-color);
-            z-index: 100;
-        }
+        .nav-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); border-top: 1px solid var(--border-color); z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 0.75rem; text-decoration: none; border: none; background: none; cursor: pointer; gap: 4px; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
         .nav-item i { font-size: 1.2rem; }
 
         .container { padding: 15px; }
-
-        /* CARDS */
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-        }
-
-        /* DASHBOARD CIRCLE */
-        .status-hero {
-            text-align: center;
-            padding: 30px 20px;
-            background: linear-gradient(180deg, #FFFDFD 0%, #FDF2EF 100%);
-            position: relative;
-        }
-        .status-hero.pregnancy-mode {
-            background: linear-gradient(180deg, #FFFDFD 0%, #FAF0EC 100%);
-        }
-
-        .cycle-ring {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            border: 8px solid var(--primary-light);
-            border-top-color: var(--primary);
-            margin: 0 auto 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-        .cycle-ring.preg-ring {
-            border-color: var(--pregnancy-light);
-            border-top-color: var(--pregnancy-color);
-        }
-
+        .card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
+        
+        .status-hero { text-align: center; padding: 30px 20px; background: linear-gradient(180deg, #FFFDFD 0%, #FDF2EF 100%); }
+        .status-hero.pregnancy-mode { background: linear-gradient(180deg, #FFFDFD 0%, #FAF0EC 100%); }
+        
+        .cycle-ring { width: 170px; height: 170px; border-radius: 50%; border: 8px solid var(--primary-light); border-top-color: var(--primary); margin: 0 auto 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .cycle-ring.preg-ring { border-color: var(--pregnancy-light); border-top-color: var(--pregnancy-color); }
         .cycle-day-num { font-size: 2.2rem; font-weight: 800; color: var(--primary); line-height: 1.1; }
         .cycle-day-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; letter-spacing: 1px; }
-        .phase-badge {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .phase-badge.preg-badge {
-            background: var(--pregnancy-color);
-        }
 
-        /* GRID STATS */
+        .phase-badge { display: inline-block; background: var(--primary); color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; }
+        .phase-badge.preg-badge { background: var(--pregnancy-color); }
+
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center; }
-        .stat-card i { font-size: 1.2rem; color: var(--primary); margin-bottom: 6px; }
         .stat-val { font-weight: 700; font-size: 1rem; color: var(--text-main); }
         .stat-lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
 
-        /* BUTTONS */
-        .btn-action-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .btn-primary {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: var(--radius-md);
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px rgba(216, 112, 90, 0.25);
-        }
-        .btn-secondary {
-            background: #6C757D;
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);
-        }
-        .btn-pregnancy {
-            background: var(--pregnancy-color);
-            box-shadow: 0 4px 12px rgba(226, 149, 120, 0.3);
-        }
-        .btn-outline {
-            background: transparent;
-            color: var(--text-main);
-            border: 1.5px solid var(--border-color);
-        }
-
-        /* MODALI */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
-            z-index: 200;
-            justify-content: center;
-            align-items: flex-end;
-        }
-        .modal.active { display: flex; }
-        .modal-content {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 500px;
-            border-radius: 24px 24px 0 0;
-            padding: 24px;
-            max-height: 85vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease-out;
-        }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        .form-section { margin-bottom: 20px; }
+        .btn-action-group { display: flex; flex-direction: column; gap: 10px; }
+        .btn-primary { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(216, 112, 90, 0.2); }
+        .btn-secondary { background: #6C757D; }
+        .btn-outline { background: transparent; color: var(--text-main); border: 1.5px solid var(--border-color); }
 
         /* CALENDARIO */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-top: 10px; }
         .cal-day-name { font-size: 0.75rem; font-weight: bold; color: var(--text-muted); padding: 4px 0; }
-        .cal-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            border-radius: 50%;
-            cursor: pointer;
-            position: relative;
-            font-weight: 500;
-            transition: transform 0.1s;
-        }
-        .cal-day:active { transform: scale(0.9); }
+        .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; border-radius: 50%; cursor: pointer; font-weight: 500; }
         .cal-day.today { border: 2px solid var(--text-main); font-weight: 800; }
-        .cal-day.period { background: var(--primary); color: white; font-weight: bold; }
-        .cal-day.predicted-period { background: var(--primary-light); color: var(--primary); border: 1.5px dashed var(--primary); }
-        .cal-day.fertile { background: var(--accent-fertile-light); color: var(--accent-fertile); font-weight: bold; }
-        .cal-day.ovulation { background: var(--ovulation-color); color: white; font-weight: bold; }
+        .cal-day.period { background-color: var(--primary) !important; color: white !important; font-weight: bold; }
+        .cal-day.predicted-period { background-color: var(--primary-light) !important; color: var(--primary); border: 1.5px dashed var(--primary); }
+        .cal-day.fertile { background-color: var(--accent-fertile-light) !important; color: var(--accent-fertile); }
+        .cal-day.ovulation { background-color: var(--ovulation-color) !important; color: white !important; }
 
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .history-item:last-child { border-bottom: none; }
+        /* MODALI */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; justify-content: center; align-items: flex-end; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; border-radius: 24px 24px 0 0; padding: 24px; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
         .hidden { display: none; }
     </style>
 </head>
-<body>
+<body onload="init()">
 
     <header>
         <div class="app-title"><i class="fa-solid fa-moon"></i> Luna</div>
@@ -243,43 +99,26 @@
     </header>
 
     <div class="container">
-        
-        <!-- DASHBOARD -->
+        <!-- SEZIONE DASHBOARD -->
         <div id="sec-dashboard">
             <!-- CICLO REGOLARE -->
             <div id="view-normal-cycle">
                 <div class="card status-hero">
-                    <div class="phase-badge" id="dash-phase">Fase Mestruale</div>
+                    <div class="phase-badge" id="dash-phase">Benvenuta</div>
                     <div class="cycle-ring">
-                        <span class="cycle-day-num" id="dash-day">1</span>
-                        <span class="cycle-day-label">Giorno del ciclo</span>
+                        <span class="cycle-day-num" id="dash-day">-</span>
+                        <span class="cycle-day-label">Giorno</span>
                     </div>
-                    <p id="dash-subtitle" style="color: var(--text-muted); font-size: 0.9rem;">Usa i pulsanti in basso per registrare le date.</p>
+                    <p id="dash-subtitle" style="font-size: 0.9rem; color: var(--text-muted);">Tocca Inizio Ciclo per partire.</p>
                 </div>
-
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <i class="fa-solid fa-droplet"></i>
-                        <div class="stat-val" id="stat-next-period">--</div>
-                        <div class="stat-lbl">Prossimo Ciclo</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fa-solid fa-seedling"></i>
-                        <div class="stat-val" id="stat-fertile">--</div>
-                        <div class="stat-lbl">Finestra Fertile</div>
-                    </div>
+                    <div class="stat-card"><div class="stat-val" id="stat-next-period">--</div><div class="stat-lbl">Prossimo Ciclo</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-fertile">--</div><div class="stat-lbl">Fertilità</div></div>
                 </div>
-
                 <div class="btn-action-group">
-                    <button class="btn-primary" onclick="markPeriodStartToday()">
-                        <i class="fa-solid fa-play"></i> Inizio Ciclo (Oggi)
-                    </button>
-                    <button class="btn-primary btn-secondary" onclick="markPeriodEndToday()">
-                        <i class="fa-solid fa-stop"></i> Fine Ciclo (Oggi)
-                    </button>
-                    <button class="btn-primary btn-outline" onclick="openStartPregnancyModal()">
-                        <i class="fa-solid fa-baby"></i> Inizio Gravidanza
-                    </button>
+                    <button class="btn-primary" onclick="markPeriodStartToday()"><i class="fa-solid fa-play"></i> Inizio Ciclo (Oggi)</button>
+                    <button class="btn-primary btn-secondary" onclick="markPeriodEndToday()"><i class="fa-solid fa-stop"></i> Fine Anticipata (Oggi)</button>
+                    <button class="btn-primary btn-outline" onclick="openStartPregnancyModal()"><i class="fa-solid fa-baby"></i> Inizio Gravidanza</button>
                 </div>
             </div>
 
@@ -291,25 +130,13 @@
                         <span class="cycle-day-num" id="preg-weeks-num" style="color: var(--pregnancy-color)">0+0</span>
                         <span class="cycle-day-label">Settimane + Giorni</span>
                     </div>
-                    <p id="preg-subtitle" style="color: var(--text-muted); font-size: 0.9rem;">Congratulazioni per la tua gravidanza! 👶</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Congratulazioni! 👶</p>
                 </div>
-
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <i class="fa-solid fa-calendar-check" style="color: var(--pregnancy-color)"></i>
-                        <div class="stat-val" id="stat-due-date">--</div>
-                        <div class="stat-lbl">Data Presunta Parto</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fa-solid fa-hourglass-half" style="color: var(--pregnancy-color)"></i>
-                        <div class="stat-val" id="stat-days-left">--</div>
-                        <div class="stat-lbl">Giorni al Parto</div>
-                    </div>
+                    <div class="stat-card"><div class="stat-val" id="stat-due-date">--</div><div class="stat-lbl">Data Parto</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-days-left">--</div><div class="stat-lbl">Giorni Rimanenti</div></div>
                 </div>
-
-                <button class="btn-primary btn-outline" onclick="openEndPregnancyModal()">
-                    <i class="fa-solid fa-flag-checkered"></i> Fine Gravidanza / Parto
-                </button>
+                <button class="btn-primary btn-outline" onclick="openEndPregnancyModal()"><i class="fa-solid fa-flag-checkered"></i> Fine Gravidanza / Parto</button>
             </div>
         </div>
 
@@ -317,122 +144,74 @@
         <div id="sec-calendar" class="hidden">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 id="cal-month-title">Maggio 2024</h3>
+                    <h3 id="cal-month-title">Mese</h3>
                     <div>
                         <button onclick="changeMonth(-1)" class="header-btn" style="width:30px; height:30px;"><i class="fa-solid fa-chevron-left"></i></button>
                         <button onclick="changeMonth(1)" class="header-btn" style="width:30px; height:30px;"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                 </div>
-                <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">💡 Tocca qualsiasi giorno per impostare Inizio o Fine Ciclo.</p>
-                
-                <div class="calendar-grid" id="calendar-days-header">
-                    <div class="cal-day-name">Lun</div><div class="cal-day-name">Mar</div><div class="cal-day-name">Mer</div>
-                    <div class="cal-day-name">Gio</div><div class="cal-day-name">Ven</div><div class="cal-day-name">Sab</div><div class="cal-day-name">Dom</div>
+                <div class="calendar-grid">
+                    <div class="cal-day-name">Lu</div><div class="cal-day-name">Ma</div><div class="cal-day-name">Me</div><div class="cal-day-name">Gi</div><div class="cal-day-name">Ve</div><div class="cal-day-name">Sa</div><div class="cal-day-name">Do</div>
                 </div>
                 <div class="calendar-grid" id="calendar-grid"></div>
             </div>
-
             <div class="card">
-                <h4>Legenda</h4>
-                <div style="display: flex; gap: 10px; margin-top: 10px; font-size: 0.8rem; flex-wrap: wrap;">
-                    <span>🔴 Mestruazione</span>
-                    <span>🌸 Previsione</span>
-                    <span>🔵 Fertilità</span>
-                    <span>🟣 Ovulazione</span>
+                <div style="font-size: 0.8rem; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <span>🔴 Ciclo</span><span>🌸 Previsione</span><span>🔵 Fertilità</span><span>🟣 Ovulazione</span>
                 </div>
             </div>
         </div>
 
-        <!-- GUIDA FASI -->
+        <!-- GUIDA -->
         <div id="sec-info" class="hidden">
             <div class="card">
-                <h3 style="color: var(--primary); margin-bottom: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Guida & Benessere</h3>
-                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Informazioni per ogni fase del ciclo o della gravidanza.</p>
-            </div>
-
-            <div class="card">
-                <h4>1° Trimestre (Settimane 1 - 13)</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Aumento di progesterone ed HCG. Stanchezza e nausea sono comuni. Assumi acido folico e riposa.</p>
-            </div>
-            <div class="card">
-                <h4>2° Trimestre (Settimane 14 - 27)</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Spesso chiamato il trimestre della rinascita: l'energia aumenta e le nausee diminuiscono.</p>
-            </div>
-            <div class="card">
-                <h4>3° Trimestre (Settimane 28 - 40)</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Il bambino cresce rapidamente. Prepara la valigia per l'ospedale ed esercita la respirazione.</p>
+                <h3>Guida & Benessere</h3>
+                <div style="margin-top:15px">
+                    <h4>Fase Mestruale</h4><p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px">Il corpo ha bisogno di riposo. Scegli cibi caldi e idratati bene.</p>
+                    <h4>Fase Follicolare</h4><p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px">L'energia sale. Ottimo momento per iniziare nuovi progetti.</p>
+                    <h4>Fase Ovulatoria</h4><p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px">Picco di energia e socialità. Ti senti più radiosa.</p>
+                    <h4>Fase Luteale</h4><p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px">Il corpo rallenta. Pratica yoga o camminate leggere.</p>
+                </div>
             </div>
         </div>
 
         <!-- STORICO -->
         <div id="sec-history" class="hidden">
-            <div class="card">
-                <h3>Storico Cicli</h3>
-                <div id="history-list" style="margin-top: 10px;"></div>
-            </div>
+            <div class="card"><h3>Storico Cicli</h3><div id="history-list" style="margin-top: 10px;"></div></div>
         </div>
-
     </div>
 
-    <!-- MODALE AZIONE GIORNO DA CALENDARIO -->
+    <!-- MODALI -->
     <div class="modal" id="day-action-modal">
         <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 id="selected-day-title">Data: --/--/----</h3>
-                <button onclick="closeDayActionModal()" style="border:none; background:none; font-size: 1.2rem; cursor:pointer;">×</button>
-            </div>
-            
+            <h3 id="selected-day-title" style="margin-bottom: 15px;">Data</h3>
             <div class="btn-action-group">
-                <button class="btn-primary" onclick="setPeriodStartSelectedDay()">
-                    <i class="fa-solid fa-play"></i> Segna Inizio Ciclo
-                </button>
-                <button class="btn-primary btn-secondary" onclick="setPeriodEndSelectedDay()">
-                    <i class="fa-solid fa-stop"></i> Segna Fine Ciclo
-                </button>
-                <button class="btn-primary btn-outline" onclick="removeSelectedDayEntry()" style="color:var(--primary); border-color:var(--primary);">
-                    <i class="fa-solid fa-trash"></i> Rimuovi Registrazione
-                </button>
+                <button class="btn-primary" onclick="setPeriodStartSelectedDay()">Segna Inizio Ciclo</button>
+                <button class="btn-primary btn-secondary" onclick="setPeriodEndSelectedDay()">Segna Fine Anticipata</button>
+                <button class="btn-outline" onclick="removeSelectedDayEntry()">Rimuovi</button>
+                <button class="btn-outline" onclick="closeDayActionModal()">Annulla</button>
             </div>
         </div>
     </div>
 
-    <!-- MODALE INIZIO GRAVIDANZA -->
     <div class="modal" id="start-preg-modal">
         <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3>Attiva Modalità Gravidanza 👶</h3>
-                <button onclick="closeStartPregnancyModal()" style="border:none; background:none; font-size: 1.2rem; cursor:pointer;">×</button>
-            </div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Inserisci la data dell'ultima mestruazione (UM).</p>
-            
-            <div class="form-section">
-                <label style="font-size:0.8rem; font-weight:bold;">Data Inizio Gravidanza / Ultima Mestruazione</label>
-                <input type="date" id="preg-start-date" style="width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid var(--border-color);">
-            </div>
-
-            <button class="btn-primary btn-pregnancy" onclick="confirmStartPregnancy()">Inizia Tracciamento Gravidanza</button>
+            <h3>Inizio Gravidanza 👶</h3>
+            <input type="date" id="preg-start-date" style="width:100%; padding:10px; margin:15px 0; border-radius:8px; border:1px solid var(--border-color);">
+            <button class="btn-primary" onclick="confirmStartPregnancy()">Attiva Modalità Gravidanza</button>
+            <button class="btn-outline" onclick="closeStartPregnancyModal()" style="width:100%; margin-top:10px">Annulla</button>
         </div>
     </div>
 
-    <!-- MODALE FINE GRAVIDANZA -->
     <div class="modal" id="end-preg-modal">
         <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3>Fine Gravidanza / Parto</h3>
-                <button onclick="closeEndPregnancyModal()" style="border:none; background:none; font-size: 1.2rem; cursor:pointer;">×</button>
-            </div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Registrando la fine della gravidanza, l'app tornerà al normale monitoraggio del ciclo mestruale.</p>
-            
-            <div class="form-section">
-                <label style="font-size:0.8rem; font-weight:bold;">Data di Parto / Fine Gravidanza</label>
-                <input type="date" id="preg-end-date" style="width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid var(--border-color);">
-            </div>
-
-            <button class="btn-primary" onclick="confirmEndPregnancy()">Termina Gravidanza & Torna al Ciclo</button>
+            <h3>Fine Gravidanza</h3>
+            <input type="date" id="preg-end-date" style="width:100%; padding:10px; margin:15px 0; border-radius:8px; border:1px solid var(--border-color);">
+            <button class="btn-primary" onclick="confirmEndPregnancy()">Termina Gravidanza</button>
+            <button class="btn-outline" onclick="closeEndPregnancyModal()" style="width:100%; margin-top:10px">Annulla</button>
         </div>
     </div>
 
-    <!-- NAVBAR BOTTOM -->
     <nav class="nav-bar">
         <button class="nav-item active" onclick="switchTab('dashboard', this)"><i class="fa-solid fa-house"></i>Oggi</button>
         <button class="nav-item" onclick="switchTab('calendar', this)"><i class="fa-solid fa-calendar-days"></i>Calendario</button>
@@ -441,390 +220,159 @@
     </nav>
 
 <script>
-    // DATI STATO APP
-    // Structure of periodRanges: [ { start: "YYYY-MM-DD", end: "YYYY-MM-DD" | null } ]
-    let appData = {
-        cycleLength: 28,
-        defaultPeriodLength: 5,
-        periodRanges: [],     
-        isPregnant: false,   
-        pregnancyStart: null 
-    };
-
+    let appData = { cycleLength: 28, periodLength: 5, periodRanges: [], isPregnant: false, pregnancyStart: null };
     let currentDateView = new Date();
     let selectedCalendarDate = null;
 
     function init() {
-        const saved = localStorage.getItem('luna_app_data');
-        if(saved) {
-            appData = JSON.parse(saved);
-        }
-        
-        // Migrazione retrocompatibile se presenti vecchi dati
-        if(!appData.periodRanges) appData.periodRanges = [];
-        if(appData.periods && appData.periods.length > 0 && appData.periodRanges.length === 0) {
-            appData.periods.forEach(p => {
-                appData.periodRanges.push({ start: p, end: null });
-            });
-        }
-
-        document.getElementById('preg-start-date').value = getTodayISO();
-        document.getElementById('preg-end-date').value = getTodayISO();
+        const saved = localStorage.getItem('luna_app_data_v3');
+        if(saved) appData = JSON.parse(saved);
         updateUI();
-    }
-
-    function getTodayISO() {
-        return new Date().toISOString().split('T')[0];
     }
 
     function save() {
-        localStorage.setItem('luna_app_data', JSON.stringify(appData));
+        localStorage.setItem('luna_app_data_v3', JSON.stringify(appData));
         updateUI();
+        if(!document.getElementById('sec-calendar').classList.contains('hidden')) renderCalendar();
     }
+
+    function getTodayISO() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function parseISO(s) { const p = s.split('-'); return new Date(p[0], p[1]-1, p[2]); }
+    function formatISO(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
     function switchTab(tab, btn) {
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
-        ['dashboard', 'calendar', 'info', 'history'].forEach(s => {
-            document.getElementById('sec-' + s).classList.add('hidden');
-        });
+        ['dashboard', 'calendar', 'info', 'history'].forEach(s => document.getElementById('sec-' + s).classList.add('hidden'));
         document.getElementById('sec-' + tab).classList.remove('hidden');
-
         if(tab === 'calendar') renderCalendar();
         if(tab === 'history') renderHistory();
     }
 
     function updateUI() {
-        // GRAVIDANZA
+        const dash = document.getElementById('view-normal-cycle');
+        const preg = document.getElementById('view-pregnancy');
+
         if(appData.isPregnant) {
-            document.getElementById('view-normal-cycle').classList.add('hidden');
-            document.getElementById('view-pregnancy').classList.remove('hidden');
-
-            const startDate = new Date(appData.pregnancyStart);
-            const today = new Date();
-            const diffTime = Math.abs(today - startDate);
-            const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-            const weeks = Math.floor(totalDays / 7);
-            const days = totalDays % 7;
-
+            dash.classList.add('hidden'); preg.classList.remove('hidden');
+            const start = parseISO(appData.pregnancyStart);
+            const today = new Date(); today.setHours(0,0,0,0);
+            const diffDays = Math.floor((today - start) / 86400000);
+            const weeks = Math.floor(diffDays / 7);
+            const days = diffDays % 7;
             document.getElementById('preg-weeks-num').innerText = `${weeks}+${days}`;
-
-            let trimester = "1° Trimestre";
-            if(weeks >= 14 && weeks < 28) trimester = "2° Trimestre";
-            else if(weeks >= 28) trimester = "3° Trimestre";
-            document.getElementById('preg-trimester-badge').innerText = trimester;
-
-            const dueDate = new Date(startDate);
-            dueDate.setDate(dueDate.getDate() + 280);
-            document.getElementById('stat-due-date').innerText = dueDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
-
-            const daysLeft = Math.max(0, Math.floor((dueDate - today) / (1000 * 60 * 60 * 24)));
-            document.getElementById('stat-days-left').innerText = daysLeft;
-
+            let trim = "1° Trimestre";
+            if(weeks >= 14 && weeks < 28) trim = "2° Trimestre";
+            else if(weeks >= 28) trim = "3° Trimestre";
+            document.getElementById('preg-trimester-badge').innerText = trim;
+            const due = new Date(start); due.setDate(due.getDate() + 280);
+            document.getElementById('stat-due-date').innerText = due.toLocaleDateString('it-IT', {day:'numeric', month:'short'});
+            document.getElementById('stat-days-left').innerText = Math.max(0, Math.ceil((due - today) / 86400000));
             return;
         }
 
-        // CICLO
-        document.getElementById('view-pregnancy').classList.add('hidden');
-        document.getElementById('view-normal-cycle').classList.remove('hidden');
-
-        if (appData.periodRanges.length === 0) {
-            document.getElementById('dash-day').innerText = "-";
-            document.getElementById('dash-phase').innerText = "Benvenuta";
-            document.getElementById('dash-subtitle').innerText = "Usa il pulsante in basso per registrare il tuo primo giorno di ciclo.";
-            document.getElementById('stat-next-period').innerText = "--";
-            document.getElementById('stat-fertile').innerText = "--";
-            return;
-        }
-
-        // Ordina per data di inizio più recente
-        appData.periodRanges.sort((a,b) => new Date(b.start) - new Date(a.start));
-        const lastRange = appData.periodRanges[0];
-        const lastStart = new Date(lastRange.start);
-        const today = new Date();
-        
-        const diffDays = Math.floor((today - lastStart) / (1000 * 60 * 60 * 24)) + 1;
-
-        document.getElementById('dash-day').innerText = diffDays > 0 ? diffDays : 1;
-
-        // Calcolo Fase
-        let periodLen = lastRange.end ? Math.max(1, Math.floor((new Date(lastRange.end) - lastStart) / (1000 * 60 * 60 * 24)) + 1) : appData.defaultPeriodLength;
+        dash.classList.remove('hidden'); preg.classList.add('hidden');
+        if (appData.periodRanges.length === 0) return;
+        appData.periodRanges.sort((a,b) => b.start.localeCompare(a.start));
+        const last = appData.periodRanges[0];
+        const start = parseISO(last.start);
+        const today = new Date(); today.setHours(0,0,0,0);
+        const diff = Math.floor((today - start) / 86400000) + 1;
+        document.getElementById('dash-day').innerText = diff > 0 ? diff : 1;
         let phase = "Follicolare";
-        if(diffDays <= periodLen) phase = "Mestruale";
-        else if(diffDays >= 13 && diffDays <= 16) phase = "Ovulatoria";
-        else if(diffDays > 16) phase = "Luteale";
-
+        if(diff <= appData.periodLength) phase = "Mestruale";
+        else if(diff >= 13 && diff <= 16) phase = "Ovulatoria";
+        else if(diff > 16) phase = "Luteale";
         document.getElementById('dash-phase').innerText = "Fase " + phase;
-        document.getElementById('dash-subtitle').innerText = `Ultimo ciclo iniziato il ${lastStart.toLocaleDateString('it-IT')}`;
-
-        // Prossimo ciclo & fertilità
-        const nextPeriod = new Date(lastStart);
-        nextPeriod.setDate(nextPeriod.getDate() + appData.cycleLength);
-        document.getElementById('stat-next-period').innerText = nextPeriod.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
-
-        const ovulationDay = new Date(nextPeriod);
-        ovulationDay.setDate(ovulationDay.getDate() - 14);
-        const fertileStart = new Date(ovulationDay);
-        fertileStart.setDate(fertileStart.getDate() - 3);
-        
-        document.getElementById('stat-fertile').innerText = `${fertileStart.getDate()} - ${ovulationDay.getDate() + 2} ${ovulationDay.toLocaleDateString('it-IT', {month:'short'})}`;
+        const next = new Date(start); next.setDate(next.getDate() + appData.cycleLength);
+        document.getElementById('stat-next-period').innerText = next.toLocaleDateString('it-IT', {day:'numeric', month:'short'});
+        const ov = new Date(next); ov.setDate(ov.getDate() - 14);
+        document.getElementById('stat-fertile').innerText = `${ov.getDate()-3}-${ov.getDate()+1} ${ov.toLocaleDateString('it-IT', {month:'short'})}`;
     }
 
-    /* AZIONI INIZIO E FINE CICLO */
-    function addPeriodStart(dateStr) {
-        // Se c'è un intervallo aperto senza data di fine, imposta la sua fine al giorno prima se logica
-        appData.periodRanges.push({ start: dateStr, end: null });
+    function addStart(dateStr) {
+        const d = parseISO(dateStr);
+        const end = new Date(d); end.setDate(end.getDate() + 4);
+        appData.periodRanges.push({ start: dateStr, end: formatISO(end) });
         save();
     }
 
-    function addPeriodEnd(dateStr) {
-        if(appData.periodRanges.length === 0) {
-            // Se non c'è nessuna data, ipotizziamo un ciclo iniziato 5 giorni prima
-            let startDate = new Date(dateStr);
-            startDate.setDate(startDate.getDate() - 4);
-            appData.periodRanges.push({ start: startDate.toISOString().split('T')[0], end: dateStr });
-        } else {
-            // Trova l'ultimo ciclo con data inizio <= dateStr
-            appData.periodRanges.sort((a,b) => new Date(b.start) - new Date(a.start));
-            let openRange = appData.periodRanges.find(r => new Date(r.start) <= new Date(dateStr));
-            
-            if(openRange) {
-                openRange.end = dateStr;
-            } else {
-                appData.periodRanges[0].end = dateStr;
-            }
-        }
+    function addEnd(dateStr) {
+        appData.periodRanges.sort((a,b) => b.start.localeCompare(a.start));
+        const target = appData.periodRanges.find(r => r.start <= dateStr);
+        if(target) target.end = dateStr;
         save();
     }
 
-    function markPeriodStartToday() {
-        addPeriodStart(getTodayISO());
-        alert("Inizio ciclo registrato per Oggi!");
-    }
-
-    function markPeriodEndToday() {
-        addPeriodEnd(getTodayISO());
-        alert("Fine ciclo registrata per Oggi!");
-    }
-
-    /* INTERAZIONE CALENDARIO */
-    function openDayActionModal(dateStr) {
-        selectedCalendarDate = dateStr;
-        const formattedDate = new Date(dateStr).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
-        document.getElementById('selected-day-title').innerText = formattedDate;
-        document.getElementById('day-action-modal').classList.add('active');
-    }
-
-    function closeDayActionModal() {
-        document.getElementById('day-action-modal').classList.remove('active');
-    }
-
-    function setPeriodStartSelectedDay() {
-        if(selectedCalendarDate) {
-            addPeriodStart(selectedCalendarDate);
-            closeDayActionModal();
-            renderCalendar();
-        }
-    }
-
-    function setPeriodEndSelectedDay() {
-        if(selectedCalendarDate) {
-            addPeriodEnd(selectedCalendarDate);
-            closeDayActionModal();
-            renderCalendar();
-        }
-    }
-
-    function removeSelectedDayEntry() {
-        if(selectedCalendarDate) {
-            appData.periodRanges = appData.periodRanges.filter(r => {
-                return !(r.start === selectedCalendarDate || r.end === selectedCalendarDate);
-            });
-            save();
-            closeDayActionModal();
-            renderCalendar();
-        }
-    }
-
-    /* CALENDARIO */
-    function changeMonth(dir) {
-        currentDateView.setMonth(currentDateView.getMonth() + dir);
-        renderCalendar();
-    }
+    function markPeriodStartToday() { addStart(getTodayISO()); }
+    function markPeriodEndToday() { addEnd(getTodayISO()); }
 
     function renderCalendar() {
-        const grid = document.getElementById('calendar-grid');
-        grid.innerHTML = '';
-        
-        const year = currentDateView.getFullYear();
-        const month = currentDateView.getMonth();
-        
-        document.getElementById('cal-month-title').innerText = new Date(year, month).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+        const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
+        const year = currentDateView.getFullYear(); const month = currentDateView.getMonth();
+        document.getElementById('cal-month-title').innerText = new Date(year, month).toLocaleDateString('it-IT', {month:'long', year:'numeric'});
+        const first = new Date(year, month, 1).getDay();
+        let spaces = first === 0 ? 6 : first - 1;
+        for(let i=0; i<spaces; i++) grid.appendChild(document.createElement('div'));
 
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        
-        let startingDay = firstDay === 0 ? 6 : firstDay - 1;
-
-        for(let i=0; i<startingDay; i++) {
-            grid.appendChild(document.createElement('div'));
-        }
-
-        const todayStr = getTodayISO();
-
-        let periodDays = new Set();
-        let predictedPeriodDays = new Set();
-        let fertileDays = new Set();
-        let ovulationDays = new Set();
-
-        if (appData.periodRanges.length > 0) {
-            // Cicli Passati e Effettivi
-            appData.periodRanges.forEach(range => {
-                let pStart = new Date(range.start);
-                let pEnd = range.end ? new Date(range.end) : new Date(pStart.getTime() + (appData.defaultPeriodLength - 1) * 86400000);
-                
-                let cur = new Date(pStart);
-                while(cur <= pEnd) {
-                    periodDays.add(cur.toISOString().split('T')[0]);
-                    cur.setDate(cur.getDate() + 1);
-                }
-            });
-
-            // Previsioni Futuro
-            appData.periodRanges.sort((a,b) => new Date(a.start) - new Date(b.start));
-            let lastStart = new Date(appData.periodRanges[appData.periodRanges.length - 1].start);
-            
-            for(let c=0; c<6; c++) {
-                let nextStart = new Date(lastStart);
-                nextStart.setDate(nextStart.getDate() + appData.cycleLength * (c + 1));
-                
-                for(let i=0; i<appData.defaultPeriodLength; i++) {
-                    let d = new Date(nextStart);
-                    d.setDate(d.getDate() + i);
-                    predictedPeriodDays.add(d.toISOString().split('T')[0]);
-                }
-
-                let ovDay = new Date(nextStart);
-                ovDay.setDate(ovDay.getDate() - 14);
-                ovulationDays.add(ovDay.toISOString().split('T')[0]);
-
-                for(let f=-4; f<=1; f++) {
-                    let fDay = new Date(ovDay);
-                    fDay.setDate(fDay.getDate() + f);
-                    fertileDays.add(fDay.toISOString().split('T')[0]);
-                }
-            }
-        }
-
-        for(let day=1; day<=daysInMonth; day++) {
-            const dayDiv = document.createElement('div');
-            dayDiv.className = 'cal-day';
-            dayDiv.innerText = day;
-            
-            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-            
-            if(dateStr === todayStr) dayDiv.classList.add('today');
-
-            if(periodDays.has(dateStr)) {
-                dayDiv.classList.add('period');
-            } else if(predictedPeriodDays.has(dateStr)) {
-                dayDiv.classList.add('predicted-period');
-            } else if(ovulationDays.has(dateStr)) {
-                dayDiv.classList.add('ovulation');
-            } else if(fertileDays.has(dateStr)) {
-                dayDiv.classList.add('fertile');
-            }
-
-            dayDiv.onclick = () => openDayActionModal(dateStr);
-
-            grid.appendChild(dayDiv);
-        }
-    }
-
-    /* STORICO */
-    function renderHistory() {
-        const list = document.getElementById('history-list');
-        list.innerHTML = '';
-
-        if(appData.periodRanges.length === 0) {
-            list.innerHTML = `<p style="font-size:0.85rem; color:var(--text-muted);">Nessun ciclo registrato finora.</p>`;
-            return;
-        }
-
-        appData.periodRanges.sort((a,b) => new Date(b.start) - new Date(a.start));
-
-        appData.periodRanges.forEach((range, idx) => {
-            const startDateStr = new Date(range.start).toLocaleDateString('it-IT');
-            const endDateStr = range.end ? new Date(range.end).toLocaleDateString('it-IT') : "In corso / Non impostato";
-            
-            let durationText = "";
-            if(range.end) {
-                const dur = Math.floor((new Date(range.end) - new Date(range.start)) / (1000 * 60 * 60 * 24)) + 1;
-                durationText = ` (${dur} giorni)`;
-            }
-
-            const item = document.createElement('div');
-            item.className = 'history-item';
-            item.innerHTML = `
-                <div>
-                    <div style="font-weight:bold; font-size:0.9rem;">Mestruazione${durationText}</div>
-                    <div style="font-size:0.8rem; color:var(--text-muted);">${startDateStr} ➔ ${endDateStr}</div>
-                </div>
-                <button onclick="removeHistoryItem(${idx})" style="color:var(--primary); background:none; border:none; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
-            `;
-            list.appendChild(item);
+        let periodSet = new Set(), predSet = new Set(), fertileSet = new Set(), ovSet = new Set();
+        appData.periodRanges.forEach(r => {
+            let cur = parseISO(r.start), end = parseISO(r.end);
+            while(cur <= end) { periodSet.add(formatISO(cur)); cur.setDate(cur.getDate() + 1); }
         });
-    }
-
-    function removeHistoryItem(idx) {
-        if(confirm("Eliminare questo ciclo dallo storico?")) {
-            appData.periodRanges.splice(idx, 1);
-            save();
-            renderHistory();
+        if(appData.periodRanges.length > 0) {
+            appData.periodRanges.sort((a,b) => a.start.localeCompare(b.start));
+            let lastS = parseISO(appData.periodRanges[appData.periodRanges.length-1].start);
+            for(let c=1; c<=3; c++) {
+                let ns = new Date(lastS); ns.setDate(ns.getDate() + appData.cycleLength * c);
+                for(let i=0; i<5; i++) { let d = new Date(ns); d.setDate(d.getDate()+i); predSet.add(formatISO(d)); }
+                let ov = new Date(ns); ov.setDate(ov.getDate() - 14); ovSet.add(formatISO(ov));
+                for(let f=-3; f<=1; f++) { let d = new Date(ov); d.setDate(d.getDate()+f); fertileSet.add(formatISO(d)); }
+            }
+        }
+        const daysInMonth = new Date(year, month+1, 0).getDate();
+        for(let i=1; i<=daysInMonth; i++) {
+            const dStr = formatISO(new Date(year, month, i));
+            const el = document.createElement('div'); el.className = 'cal-day'; el.innerText = i;
+            if(dStr === getTodayISO()) el.classList.add('today');
+            if(periodSet.has(dStr)) el.classList.add('period');
+            else if(predSet.has(dStr)) el.classList.add('predicted-period');
+            else if(ovSet.has(dStr)) el.classList.add('ovulation');
+            else if(fertileSet.has(dStr)) el.classList.add('fertile');
+            el.onclick = () => {
+                selectedCalendarDate = dStr;
+                document.getElementById('selected-day-title').innerText = i + " " + document.getElementById('cal-month-title').innerText;
+                document.getElementById('day-action-modal').classList.add('active');
+            };
+            grid.appendChild(el);
         }
     }
 
-    /* GRAVIDANZA CONTROLS */
+    function changeMonth(v) { currentDateView.setMonth(currentDateView.getMonth() + v); renderCalendar(); }
+    function closeDayActionModal() { document.getElementById('day-action-modal').classList.remove('active'); }
+    function setPeriodStartSelectedDay() { addStart(selectedCalendarDate); closeDayActionModal(); }
+    function setPeriodEndSelectedDay() { addEnd(selectedCalendarDate); closeDayActionModal(); }
+    function removeSelectedDayEntry() { appData.periodRanges = appData.periodRanges.filter(r => r.start !== selectedCalendarDate); save(); closeDayActionModal(); }
     function openStartPregnancyModal() { document.getElementById('start-preg-modal').classList.add('active'); }
     function closeStartPregnancyModal() { document.getElementById('start-preg-modal').classList.remove('active'); }
-
-    function confirmStartPregnancy() {
-        const date = document.getElementById('preg-start-date').value;
-        if(date) {
-            appData.isPregnant = true;
-            appData.pregnancyStart = date;
-            save();
-            closeStartPregnancyModal();
-        }
-    }
-
+    function confirmStartPregnancy() { appData.isPregnant = true; appData.pregnancyStart = document.getElementById('preg-start-date').value; save(); closeStartPregnancyModal(); }
     function openEndPregnancyModal() { document.getElementById('end-preg-modal').classList.add('active'); }
     function closeEndPregnancyModal() { document.getElementById('end-preg-modal').classList.remove('active'); }
-
-    function confirmEndPregnancy() {
-        const endDate = document.getElementById('preg-end-date').value;
-        if(endDate) {
-            appData.isPregnant = false;
-            if(confirm("Vuoi segnare questa data come inizio del nuovo ciclo?")) {
-                addPeriodStart(endDate);
-            }
-            appData.pregnancyStart = null;
-            save();
-            closeEndPregnancyModal();
-        }
+    function confirmEndPregnancy() { appData.isPregnant = false; addStart(document.getElementById('preg-end-date').value); save(); closeEndPregnancyModal(); }
+    function renderHistory() {
+        const l = document.getElementById('history-list'); l.innerHTML = '';
+        appData.periodRanges.sort((a,b) => b.start.localeCompare(a.start)).forEach((r, i) => {
+            const div = document.createElement('div'); div.className = 'history-item';
+            div.innerHTML = `<span>${r.start} ➔ ${r.end}</span><button onclick="deleteHist(${i})" style="border:none;background:none;color:var(--primary)">🗑️</button>`;
+            l.appendChild(div);
+        });
     }
-
-    function openSettings() {
-        const len = prompt("Imposta la durata media del tuo ciclo in giorni (default 28):", appData.cycleLength);
-        if(len) {
-            appData.cycleLength = parseInt(len);
-            save();
-        }
-    }
-
-    init();
+    function deleteHist(i) { appData.periodRanges.splice(i, 1); save(); renderHistory(); }
+    function openSettings() { let v = prompt("Durata media ciclo:", appData.cycleLength); if(v) { appData.cycleLength = parseInt(v); save(); } }
 </script>
 </body>
 </html>
