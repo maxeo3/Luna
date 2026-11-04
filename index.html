@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luna · Diario del Ciclo</title>
+    <title>Luna · Diario del Ciclo & Gravidanza</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -13,6 +13,8 @@
             --primary-light: #F7E5E0;
             --secondary: #8B5E75;
             --accent-fertile: #7DA2A9;
+            --pregnancy-color: #E29578;
+            --pregnancy-light: #F8E9E3;
             --text-main: #3D2C2E;
             --text-muted: #8C7A7B;
             --border-color: #F0E2DE;
@@ -81,6 +83,10 @@
             background: linear-gradient(180deg, #FFFDFD 0%, #FDF2EF 100%);
             position: relative;
         }
+        .status-hero.pregnancy-mode {
+            background: linear-gradient(180deg, #FFFDFD 0%, #FAF0EC 100%);
+        }
+
         .cycle-ring {
             width: 180px;
             height: 180px;
@@ -94,8 +100,13 @@
             align-items: center;
             position: relative;
         }
-        .cycle-day-num { font-size: 2.8rem; font-weight: 800; color: var(--primary); line-height: 1; }
-        .cycle-day-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; letter-spacing: 1px; }
+        .cycle-ring.preg-ring {
+            border-color: var(--pregnancy-light);
+            border-top-color: var(--pregnancy-color);
+        }
+
+        .cycle-day-num { font-size: 2.2rem; font-weight: 800; color: var(--primary); line-height: 1.1; }
+        .cycle-day-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; letter-spacing: 1px; }
         .phase-badge {
             display: inline-block;
             background: var(--primary);
@@ -105,6 +116,9 @@
             font-size: 0.85rem;
             font-weight: 600;
             margin-bottom: 8px;
+        }
+        .phase-badge.preg-badge {
+            background: var(--pregnancy-color);
         }
 
         /* GRID STATS */
@@ -130,6 +144,16 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 12px rgba(216, 112, 90, 0.25);
+        }
+        .btn-pregnancy {
+            background: var(--pregnancy-color);
+            box-shadow: 0 4px 12px rgba(226, 149, 120, 0.3);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-main);
+            border: 1.5px solid var(--border-color);
+            margin-top: 10px;
         }
 
         /* LOGGING MODAL / FORM */
@@ -189,7 +213,6 @@
         .cal-day.today { border: 2px solid var(--primary); font-weight: bold; }
         .cal-day.period { background: var(--primary); color: white; }
         .cal-day.fertile { background: var(--accent-fertile); color: white; }
-        .cal-day.predicted { border: 2px dashed var(--primary); }
 
         /* LISTS */
         .history-item {
@@ -213,33 +236,71 @@
 
     <div class="container">
         
-        <!-- SEZIONE DASHBOARD -->
+        <!-- SEZIONE DASHBOARD CICLO NORME -->
         <div id="sec-dashboard">
-            <div class="card status-hero">
-                <div class="phase-badge" id="dash-phase">Fase Mestruale</div>
-                <div class="cycle-ring">
-                    <span class="cycle-day-num" id="dash-day">1</span>
-                    <span class="cycle-day-label">Giorno del ciclo</span>
+            <!-- VISTA CICLO STANDARD -->
+            <div id="view-normal-cycle">
+                <div class="card status-hero">
+                    <div class="phase-badge" id="dash-phase">Fase Mestruale</div>
+                    <div class="cycle-ring">
+                        <span class="cycle-day-num" id="dash-day">1</span>
+                        <span class="cycle-day-label">Giorno del ciclo</span>
+                    </div>
+                    <p id="dash-subtitle" style="color: var(--text-muted); font-size: 0.9rem;">Registra l'inizio della tua ultima mestruazione per iniziare.</p>
                 </div>
-                <p id="dash-subtitle" style="color: var(--text-muted); font-size: 0.9rem;">Registra l'inizio della tua ultima mestruazione per iniziare.</p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fa-solid fa-droplet"></i>
+                        <div class="stat-val" id="stat-next-period">--</div>
+                        <div class="stat-lbl">Prossimo Ciclo</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-seedling"></i>
+                        <div class="stat-val" id="stat-fertile">--</div>
+                        <div class="stat-lbl">Finestra Fertile</div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="openLogModal()">
+                    <i class="fa-solid fa-plus"></i> Registra Oggi / Sintomi
+                </button>
+                <button class="btn-primary btn-outline" onclick="openStartPregnancyModal()">
+                    <i class="fa-solid fa-baby"></i> Inizio Gravidanza
+                </button>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <i class="fa-solid fa-droplet"></i>
-                    <div class="stat-val" id="stat-next-period">--</div>
-                    <div class="stat-lbl">Prossimo Ciclo</div>
+            <!-- VISTA MODALITÀ GRAVIDANZA -->
+            <div id="view-pregnancy" class="hidden">
+                <div class="card status-hero pregnancy-mode">
+                    <div class="phase-badge preg-badge" id="preg-trimester-badge">1° Trimestre</div>
+                    <div class="cycle-ring preg-ring">
+                        <span class="cycle-day-num" id="preg-weeks-num" style="color: var(--pregnancy-color)">0+0</span>
+                        <span class="cycle-day-label">Settimane + Giorni</span>
+                    </div>
+                    <p id="preg-subtitle" style="color: var(--text-muted); font-size: 0.9rem;">Congratulazioni per la tua gravidanza! 👶</p>
                 </div>
-                <div class="stat-card">
-                    <i class="fa-solid fa-seedling"></i>
-                    <div class="stat-val" id="stat-fertile">--</div>
-                    <div class="stat-lbl">Finestra Fertile</div>
-                </div>
-            </div>
 
-            <button class="btn-primary" onclick="openLogModal()">
-                <i class="fa-solid fa-plus"></i> Registra Oggi / Sintomi
-            </button>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fa-solid fa-calendar-check" style="color: var(--pregnancy-color)"></i>
+                        <div class="stat-val" id="stat-due-date">--</div>
+                        <div class="stat-lbl">Data Presunta Parto</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-hourglass-half" style="color: var(--pregnancy-color)"></i>
+                        <div class="stat-val" id="stat-days-left">--</div>
+                        <div class="stat-lbl">Giorni al Parto</div>
+                    </div>
+                </div>
+
+                <button class="btn-primary btn-pregnancy" onclick="openLogModal()">
+                    <i class="fa-solid fa-heart"></i> Registra Sintomi Gravidanza
+                </button>
+                <button class="btn-primary btn-outline" onclick="openEndPregnancyModal()">
+                    <i class="fa-solid fa-flag-checkered"></i> Fine Gravidanza / Parto
+                </button>
+            </div>
         </div>
 
         <!-- SEZIONE CALENDARIO -->
@@ -264,7 +325,6 @@
                 <div style="display: flex; gap: 12px; margin-top: 10px; font-size: 0.8rem; flex-wrap: wrap;">
                     <span><span style="color:var(--primary)">🔴</span> Mestruazione</span>
                     <span><span style="color:var(--accent-fertile)">🔵</span> Fertilità / Ovulazione</span>
-                    <span>⭕ Previsione</span>
                 </div>
             </div>
         </div>
@@ -272,32 +332,28 @@
         <!-- SEZIONE FASI & INFO -->
         <div id="sec-info" class="hidden">
             <div class="card">
-                <h3 style="color: var(--primary); margin-bottom: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Fasi del Ciclo</h3>
-                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Comprendere le 4 fasi ti aiuta ad adattare energia, alimentazione e attività fisica.</p>
+                <h3 style="color: var(--primary); margin-bottom: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Guida & Benessere</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Informazioni e consigli per ogni fase del ciclo o della gravidanza.</p>
             </div>
 
             <div class="card">
-                <h4>1. Fase Mestruale (Giorno 1-5)</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">I livelli ormonali sono al minimo. Riposo, idratazione e cibi ricchi di ferro.</p>
+                <h4>1° Trimestre (Settimane 1 - 13)</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Aumento di progesterone ed HCG. Stanchezza e nausea sono comuni. Assumi acido folico e riposa.</p>
             </div>
             <div class="card">
-                <h4>2. Fase Follicolare (Giorno 6-12)</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Aumentano gli estrogeni. Energia in crescita, creatività e motivazione al massimo.</p>
+                <h4>2° Trimestre (Settimane 14 - 27)</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Spesso chiamato il trimestre della rinascita: l'energia aumenta e le nausee diminuiscono.</p>
             </div>
             <div class="card">
-                <h4>3. Fase Ovulatoria (Giorno 13-16)</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Picco di fertilità ed energia. Ottimo momento per socializzare e fare attività intense.</p>
-            </div>
-            <div class="card">
-                <h4>4. Fase Luteale (Giorno 17-28)</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Sale il progesterone. Sintomi premestruali possibili. Rallenta i ritmi ed evita lo stress.</p>
+                <h4>3° Trimestre (Settimane 28 - 40)</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Il bambino cresce rapidamente. Prepara la valigia per l'ospedale ed esercita la respirazione.</p>
             </div>
         </div>
 
         <!-- SEZIONE STORICO -->
         <div id="sec-history" class="hidden">
             <div class="card">
-                <h3>Storico Cicli</h3>
+                <h3>Storico Cicli & Gravidanze</h3>
                 <div id="history-list" style="margin-top: 10px;"></div>
             </div>
             <button class="btn-primary" onclick="addPastPeriod()"><i class="fa-solid fa-calendar-plus"></i> Aggiungi Inizio Ciclo Passato</button>
@@ -305,7 +361,7 @@
 
     </div>
 
-    <!-- MODALE REGISTRAZIONE -->
+    <!-- MODALE REGISTRAZIONE GIORNALIERA -->
     <div class="modal" id="log-modal">
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -314,11 +370,11 @@
             </div>
 
             <div class="form-section">
-                <label style="font-size:0.8rem; font-weight:bold;">Seleziona Data</label>
+                <label style="font-size:0.8rem; font-weight:bold;">Data</label>
                 <input type="date" id="log-date" style="width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid var(--border-color);">
             </div>
 
-            <div class="form-section">
+            <div class="form-section" id="flow-section">
                 <div class="form-title">Flusso Mestruale</div>
                 <div class="chip-group" id="flow-chips">
                     <div class="chip" onclick="selectChip(this, 'flow', 'Nessuno')">Nessuno</div>
@@ -332,11 +388,11 @@
             <div class="form-section">
                 <div class="form-title">Sintomi</div>
                 <div class="chip-group" id="symptom-chips">
+                    <div class="chip" onclick="toggleMultiChip(this)">Nausea</div>
                     <div class="chip" onclick="toggleMultiChip(this)">Crampi</div>
                     <div class="chip" onclick="toggleMultiChip(this)">Mal di testa</div>
                     <div class="chip" onclick="toggleMultiChip(this)">Gonfiore</div>
                     <div class="chip" onclick="toggleMultiChip(this)">Seno dolorante</div>
-                    <div class="chip" onclick="toggleMultiChip(this)">Acne</div>
                     <div class="chip" onclick="toggleMultiChip(this)">Stanchezza</div>
                 </div>
             </div>
@@ -348,7 +404,7 @@
                     <div class="chip" onclick="toggleMultiChip(this)">Calma</div>
                     <div class="chip" onclick="toggleMultiChip(this)">Irritabile</div>
                     <div class="chip" onclick="toggleMultiChip(this)">Ansiosa</div>
-                    <div class="chip" onclick="toggleMultiChip(this)">Triste</div>
+                    <div class="chip" onclick="toggleMultiChip(this)">Emozionata</div>
                 </div>
             </div>
 
@@ -356,11 +412,47 @@
         </div>
     </div>
 
+    <!-- MODALE INIZIO GRAVIDANZA -->
+    <div class="modal" id="start-preg-modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3>Attiva Modalità Gravidanza 👶</h3>
+                <button onclick="closeStartPregnancyModal()" style="border:none; background:none; font-size: 1.2rem; cursor:pointer;">×</button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Inserisci la data dell'ultima mestruazione (UM) o la Data Presunta del Parto se la conosci già.</p>
+            
+            <div class="form-section">
+                <label style="font-size:0.8rem; font-weight:bold;">Data Inizio Gravidanza / Ultima Mestruazione</label>
+                <input type="date" id="preg-start-date" style="width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid var(--border-color);">
+            </div>
+
+            <button class="btn-primary btn-pregnancy" onclick="confirmStartPregnancy()">Inizia Tracciamento Gravidanza</button>
+        </div>
+    </div>
+
+    <!-- MODALE FINE GRAVIDANZA -->
+    <div class="modal" id="end-preg-modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3>Fine Gravidanza / Parto</h3>
+                <button onclick="closeEndPregnancyModal()" style="border:none; background:none; font-size: 1.2rem; cursor:pointer;">×</button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Registrando la fine della gravidanza, l'app tornerà al normale monitoraggio del ciclo mestruale.</p>
+            
+            <div class="form-section">
+                <label style="font-size:0.8rem; font-weight:bold;">Data di Parto / Fine Gravidanza</label>
+                <input type="date" id="preg-end-date" style="width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid var(--border-color);">
+            </div>
+
+            <button class="btn-primary" onclick="confirmEndPregnancy()">Termina Gravidanza & Torna al Ciclo</button>
+        </div>
+    </div>
+
     <!-- NAVBAR BOTTOM -->
     <nav class="nav-bar">
         <button class="nav-item active" onclick="switchTab('dashboard', this)"><i class="fa-solid fa-house"></i>Oggi</button>
         <button class="nav-item" onclick="switchTab('calendar', this)"><i class="fa-solid fa-calendar-days"></i>Calendario</button>
-        <button class="nav-item" onclick="switchTab('info', this)"><i class="fa-solid fa-heart-pulse"></i>Fasi</button>
+        <button class="nav-item" onclick="switchTab('info', this)"><i class="fa-solid fa-heart-pulse"></i>Guida</button>
         <button class="nav-item" onclick="switchTab('history', this)"><i class="fa-solid fa-clock-rotate-left"></i>Storico</button>
     </nav>
 
@@ -369,8 +461,10 @@
     let appData = {
         cycleLength: 28,
         periodLength: 5,
-        periods: [], // Lista date inizio ciclo: "YYYY-MM-DD"
-        logs: {}     // "YYYY-MM-DD": { flow, symptoms: [], mood: [] }
+        periods: [],         // Date inizio ciclo
+        logs: {},            // Sintomi e note
+        isPregnant: false,   // Stato Gravidanza
+        pregnancyStart: null // Data inizio gravidanza
     };
 
     let currentDateView = new Date();
@@ -381,6 +475,8 @@
             appData = JSON.parse(saved);
         }
         document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('preg-start-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('preg-end-date').value = new Date().toISOString().split('T')[0];
         updateUI();
     }
 
@@ -403,6 +499,45 @@
     }
 
     function updateUI() {
+        // SE IN GRAVIDANZA
+        if(appData.isPregnant) {
+            document.getElementById('view-normal-cycle').classList.add('hidden');
+            document.getElementById('view-pregnancy').classList.remove('hidden');
+            document.getElementById('flow-section').style.display = 'none';
+
+            const startDate = new Date(appData.pregnancyStart);
+            const today = new Date();
+            const diffTime = Math.abs(today - startDate);
+            const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            const weeks = Math.floor(totalDays / 7);
+            const days = totalDays % 7;
+
+            document.getElementById('preg-weeks-num').innerText = `${weeks}+${days}`;
+
+            // Trimestre
+            let trimester = "1° Trimestre";
+            if(weeks >= 14 && weeks < 28) trimester = "2° Trimestre";
+            else if(weeks >= 28) trimester = "3° Trimestre";
+            document.getElementById('preg-trimester-badge').innerText = trimester;
+
+            // Data Presunta Parto (40 settimane = 280 giorni)
+            const dueDate = new Date(startDate);
+            dueDate.setDate(dueDate.getDate() + 280);
+            document.getElementById('stat-due-date').innerText = dueDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
+
+            // Giorni rimanenti
+            const daysLeft = Math.max(0, Math.floor((dueDate - today) / (1000 * 60 * 60 * 24)));
+            document.getElementById('stat-days-left').innerText = daysLeft;
+
+            return;
+        }
+
+        // SE IN MODALITÀ CICLO NORMALE
+        document.getElementById('view-pregnancy').classList.add('hidden');
+        document.getElementById('view-normal-cycle').classList.remove('hidden');
+        document.getElementById('flow-section').style.display = 'block';
+
         if (appData.periods.length === 0) {
             document.getElementById('dash-day').innerText = "-";
             document.getElementById('dash-phase').innerText = "Benvenuta";
@@ -410,7 +545,6 @@
             return;
         }
 
-        // Ordina cicli
         appData.periods.sort((a,b) => new Date(b) - new Date(a));
         const lastPeriod = new Date(appData.periods[0]);
         const today = new Date();
@@ -420,7 +554,6 @@
 
         document.getElementById('dash-day').innerText = diffDays;
 
-        // Calcolo fase attuale
         let phase = "Follicolare";
         if(diffDays <= appData.periodLength) phase = "Mestruale";
         else if(diffDays >= 13 && diffDays <= 16) phase = "Ovulatoria";
@@ -429,18 +562,47 @@
         document.getElementById('dash-phase').innerText = "Fase " + phase;
         document.getElementById('dash-subtitle').innerText = `Il tuo ciclo è iniziato il ${lastPeriod.toLocaleDateString('it-IT')}`;
 
-        // Calcolo Prossimo Ciclo
         const nextPeriod = new Date(lastPeriod);
         nextPeriod.setDate(nextPeriod.getDate() + appData.cycleLength);
         document.getElementById('stat-next-period').innerText = nextPeriod.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
 
-        // Calcolo Finestra Fertile (Ovulazione ~ 14gg prima del prossimo ciclo)
         const ovulationDay = new Date(nextPeriod);
         ovulationDay.setDate(ovulationDay.getDate() - 14);
         const fertileStart = new Date(ovulationDay);
         fertileStart.setDate(fertileStart.getDate() - 3);
         
         document.getElementById('stat-fertile').innerText = `${fertileStart.getDate()} - ${ovulationDay.getDate() + 2} ${ovulationDay.toLocaleDateString('it-IT', {month:'short'})}`;
+    }
+
+    /* GRAVIDANZA CONTROLS */
+    function openStartPregnancyModal() { document.getElementById('start-preg-modal').classList.add('active'); }
+    function closeStartPregnancyModal() { document.getElementById('start-preg-modal').classList.remove('active'); }
+
+    function confirmStartPregnancy() {
+        const date = document.getElementById('preg-start-date').value;
+        if(date) {
+            appData.isPregnant = true;
+            appData.pregnancyStart = date;
+            save();
+            closeStartPregnancyModal();
+        }
+    }
+
+    function openEndPregnancyModal() { document.getElementById('end-preg-modal').classList.add('active'); }
+    function closeEndPregnancyModal() { document.getElementById('end-preg-modal').classList.remove('active'); }
+
+    function confirmEndPregnancy() {
+        const endDate = document.getElementById('preg-end-date').value;
+        if(endDate) {
+            appData.isPregnant = false;
+            // Opzionale: aggiunge la data come nuova mestruazione/capoparto
+            if(confirm("Vuoi segnare questa data come inizio del nuovo ciclo?")) {
+                appData.periods.push(endDate);
+            }
+            appData.pregnancyStart = null;
+            save();
+            closeEndPregnancyModal();
+        }
     }
 
     /* MODALE LOG */
@@ -454,15 +616,12 @@
         selectedFlow = val;
     }
 
-    function toggleMultiChip(el) {
-        el.classList.toggle('selected');
-    }
+    function toggleMultiChip(el) { el.classList.toggle('selected'); }
 
     function saveLog() {
         const date = document.getElementById('log-date').value;
         
-        // Se c'è un flusso e la data non era già registrata come inizio ciclo, possiamo aggiungerla
-        if((selectedFlow === "Medio" || selectedFlow === "Abbondante" || selectedFlow === "Leggero") && !appData.periods.includes(date)) {
+        if(!appData.isPregnant && (selectedFlow === "Medio" || selectedFlow === "Abbondante" || selectedFlow === "Leggero") && !appData.periods.includes(date)) {
             if(confirm("Vuoi segnare questa data come inizio di un nuovo ciclo mestruale?")) {
                 appData.periods.push(date);
             }
@@ -494,7 +653,6 @@
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         
-        // Offset lunedì
         let startingDay = firstDay === 0 ? 6 : firstDay - 1;
 
         for(let i=0; i<startingDay; i++) {
@@ -511,11 +669,7 @@
             const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
             
             if(dateStr === todayStr) dayDiv.classList.add('today');
-            
-            // Verifica mestruazioni
-            if(appData.periods.includes(dateStr)) {
-                dayDiv.classList.add('period');
-            }
+            if(appData.periods.includes(dateStr)) dayDiv.classList.add('period');
 
             grid.appendChild(dayDiv);
         }
