@@ -1,0 +1,16 @@
+{
+  "name": "TravelPack Pro",
+  "short_name": "TravelPack",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#2a9d8f",
+  "description": "Lista oggetti per viaggi",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
