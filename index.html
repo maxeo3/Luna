@@ -16,7 +16,8 @@
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <meta name="theme-color" content="#FDF8F5">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="vendor/fontawesome/css/solid.min.css" rel="stylesheet">
     <style>
         :root {
             --bg-main: #FDF8F5;
@@ -223,6 +224,10 @@
     </nav>
 
 <script>
+    if('serviceWorker' in navigator && location.protocol !== 'file:') {
+        window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(e => console.warn('Service worker non registrato', e)));
+    }
+
     const STORAGE_KEY = 'luna_app_data_v3';
     const DEFAULTS = { cycleLength: 28, periodLength: 5, periodRanges: [], isPregnant: false, pregnancyStart: null };
     const MAX_PERIOD_DAYS = 14;
