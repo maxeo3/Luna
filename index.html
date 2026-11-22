@@ -388,8 +388,12 @@
         if(appData.periodRanges.length > 0) {
             sortDesc();
             const lastS = parseISO(appData.periodRanges[0].start);
-            for(let c=1; c<=3; c++) {
+            // Previsioni per tutti i cicli futuri, fino alla fine del mese visualizzato
+            // (+14 giorni perché l'ovulazione di un ciclo che inizia il mese dopo può cadere in questo mese)
+            const viewEnd = new Date(year, month + 1, 14);
+            for(let c=1; c<=2000; c++) {
                 const ns = addDays(lastS, appData.cycleLength * c);
+                if(addDays(ns, -14 - 3) > viewEnd) break;
                 for(let i=0; i<appData.periodLength; i++) predSet.add(formatISO(addDays(ns, i)));
                 const ov = addDays(ns, -14); ovSet.add(formatISO(ov));
                 for(let f=-3; f<=1; f++) fertileSet.add(formatISO(addDays(ov, f)));
