@@ -11,10 +11,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Luna">
-    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <meta name="theme-color" content="#FDF8F5">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="vendor/fontawesome/css/solid.min.css" rel="stylesheet">
     <style>
         :root {
             --bg-main: #FDF8F5;
@@ -188,7 +191,7 @@
             <div class="btn-action-group">
                 <button class="btn-primary" onclick="setPeriodStartSelectedDay()">Segna Inizio Ciclo</button>
                 <button class="btn-primary btn-secondary" onclick="setPeriodEndSelectedDay()">Segna Fine Anticipata</button>
-                <button class="btn-outline" onclick="removeSelectedDayEntry()">Rimuovi</button>
+                <button class="btn-outline" id="remove-day-btn" onclick="removeSelectedDayEntry()">Rimuovi Ciclo</button>
                 <button class="btn-outline" onclick="closeDayActionModal()">Annulla</button>
             </div>
         </div>
@@ -197,6 +200,7 @@
     <div class="modal" id="start-preg-modal">
         <div class="modal-content">
             <h3>Inizio Gravidanza 👶</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-top:6px">Inserisci il primo giorno dell'ultima mestruazione: da lì si calcolano settimane e data presunta del parto.</p>
             <input type="date" id="preg-start-date" style="width:100%; padding:10px; margin:15px 0; border-radius:8px; border:1px solid var(--border-color);">
             <button class="btn-primary" onclick="confirmStartPregnancy()">Attiva Modalità Gravidanza</button>
             <button class="btn-outline" onclick="closeStartPregnancyModal()" style="width:100%; margin-top:10px">Annulla</button>
@@ -220,29 +224,54 @@
     </nav>
 
 <script>
-    let appData = { cycleLength: 28, periodLength: 5, periodRanges: [], isPregnant: false, pregnancyStart: null };
+    if('serviceWorker' in navigator && location.protocol !== 'file:') {
+        window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(e => console.warn('Service worker non registrato', e)));
+    }
+
+    const STORAGE_KEY = 'luna_app_data_v3';
+    const DEFAULTS = { cycleLength: 28, periodLength: 5, periodRanges: [], isPregnant: false, pregnancyStart: null };
+    const MAX_PERIOD_DAYS = 14;
+    let appData = { ...DEFAULTS, periodRanges: [] };
     let currentDateView = new Date();
     let selectedCalendarDate = null;
 
     function init() {
-        const saved = localStorage.getItem('luna_app_data_v3');
-        if(saved) appData = JSON.parse(saved);
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if(saved) {
+                const parsed = JSON.parse(saved);
+                appData = { ...DEFAULTS, ...parsed };
+                // Scarta eventuali voci corrotte (es. date vuote salvate in passato)
+                appData.periodRanges = (Array.isArray(parsed.periodRanges) ? parsed.periodRanges : [])
+                    .filter(r => r && isValidISO(r.start) && isValidISO(r.end));
+                if(appData.isPregnant && !isValidISO(appData.pregnancyStart)) { appData.isPregnant = false; appData.pregnancyStart = null; }
+            }
+        } catch(e) { console.error('Dati salvati non leggibili', e); }
         updateUI();
     }
 
     function save() {
-        localStorage.setItem('luna_app_data_v3', JSON.stringify(appData));
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e) { alert('Impossibile salvare i dati su questo dispositivo.'); }
         updateUI();
         if(!document.getElementById('sec-calendar').classList.contains('hidden')) renderCalendar();
+        if(!document.getElementById('sec-history').classList.contains('hidden')) renderHistory();
     }
 
-    function getTodayISO() {
-        const d = new Date();
-        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    }
-
-    function parseISO(s) { const p = s.split('-'); return new Date(p[0], p[1]-1, p[2]); }
+    function getTodayISO() { return formatISO(new Date()); }
+    function parseISO(s) { const p = s.split('-'); return new Date(+p[0], p[1]-1, +p[2]); }
     function formatISO(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+    function isValidISO(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(parseISO(s)); }
+    function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+    // Math.round evita l'errore di un giorno quando c'è il cambio dell'ora legale (giorni da 23 o 25 ore)
+    function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+    function todayDate() { const t = new Date(); t.setHours(0,0,0,0); return t; }
+    function fmtShort(d) { return d.toLocaleDateString('it-IT', {day:'numeric', month:'short'}); }
+    function fmtRange(a, b) {
+        if(a.getMonth() === b.getMonth()) return `${a.getDate()}-${b.getDate()} ${b.toLocaleDateString('it-IT', {month:'short'})}`;
+        return `${fmtShort(a)} - ${fmtShort(b)}`;
+    }
+    function sortDesc() { appData.periodRanges.sort((a,b) => b.start.localeCompare(a.start)); }
+    function findRangeContaining(dateStr) { return appData.periodRanges.find(r => r.start <= dateStr && dateStr <= r.end); }
 
     function switchTab(tab, btn) {
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -253,15 +282,23 @@
         if(tab === 'history') renderHistory();
     }
 
+    function resetDashboard() {
+        document.getElementById('dash-day').innerText = '-';
+        document.getElementById('dash-phase').innerText = 'Benvenuta';
+        document.getElementById('dash-subtitle').innerText = 'Tocca Inizio Ciclo per partire.';
+        document.getElementById('stat-next-period').innerText = '--';
+        document.getElementById('stat-fertile').innerText = '--';
+    }
+
     function updateUI() {
         const dash = document.getElementById('view-normal-cycle');
         const preg = document.getElementById('view-pregnancy');
+        const today = todayDate();
 
         if(appData.isPregnant) {
             dash.classList.add('hidden'); preg.classList.remove('hidden');
             const start = parseISO(appData.pregnancyStart);
-            const today = new Date(); today.setHours(0,0,0,0);
-            const diffDays = Math.floor((today - start) / 86400000);
+            const diffDays = Math.max(0, daysBetween(start, today));
             const weeks = Math.floor(diffDays / 7);
             const days = diffDays % 7;
             document.getElementById('preg-weeks-num').innerText = `${weeks}+${days}`;
@@ -269,43 +306,67 @@
             if(weeks >= 14 && weeks < 28) trim = "2° Trimestre";
             else if(weeks >= 28) trim = "3° Trimestre";
             document.getElementById('preg-trimester-badge').innerText = trim;
-            const due = new Date(start); due.setDate(due.getDate() + 280);
-            document.getElementById('stat-due-date').innerText = due.toLocaleDateString('it-IT', {day:'numeric', month:'short'});
-            document.getElementById('stat-days-left').innerText = Math.max(0, Math.ceil((due - today) / 86400000));
+            const due = addDays(start, 280);
+            document.getElementById('stat-due-date').innerText = fmtShort(due);
+            document.getElementById('stat-days-left').innerText = Math.max(0, daysBetween(today, due));
             return;
         }
 
         dash.classList.remove('hidden'); preg.classList.add('hidden');
-        if (appData.periodRanges.length === 0) return;
-        appData.periodRanges.sort((a,b) => b.start.localeCompare(a.start));
-        const last = appData.periodRanges[0];
+        sortDesc();
+        // Ultimo ciclo già iniziato (ignora eventuali date future segnate dal calendario)
+        const todayStr = formatISO(today);
+        const last = appData.periodRanges.find(r => r.start <= todayStr);
+        if(!last) { resetDashboard(); return; }
+
         const start = parseISO(last.start);
-        const today = new Date(); today.setHours(0,0,0,0);
-        const diff = Math.floor((today - start) / 86400000) + 1;
-        document.getElementById('dash-day').innerText = diff > 0 ? diff : 1;
-        let phase = "Follicolare";
-        if(diff <= appData.periodLength) phase = "Mestruale";
-        else if(diff >= 13 && diff <= 16) phase = "Ovulatoria";
-        else if(diff > 16) phase = "Luteale";
-        document.getElementById('dash-phase').innerText = "Fase " + phase;
-        const next = new Date(start); next.setDate(next.getDate() + appData.cycleLength);
-        document.getElementById('stat-next-period').innerText = next.toLocaleDateString('it-IT', {day:'numeric', month:'short'});
-        const ov = new Date(next); ov.setDate(ov.getDate() - 14);
-        document.getElementById('stat-fertile').innerText = `${ov.getDate()-3}-${ov.getDate()+1} ${ov.toLocaleDateString('it-IT', {month:'short'})}`;
+        const day = daysBetween(start, today) + 1;
+        const cycleLen = appData.cycleLength;
+        const ovDay = cycleLen - 14;
+        document.getElementById('dash-day').innerText = day;
+
+        let phase, subtitle;
+        if(todayStr <= last.end) { phase = "Fase Mestruale"; subtitle = "Riposati e idratati bene."; }
+        else if(day > cycleLen) {
+            const late = day - cycleLen;
+            phase = "In ritardo";
+            subtitle = `Il ciclo è in ritardo di ${late} ${late === 1 ? 'giorno' : 'giorni'}.`;
+        }
+        else if(day < ovDay - 1) { phase = "Fase Follicolare"; subtitle = "L'energia è in aumento."; }
+        else if(day <= ovDay + 2) { phase = "Fase Ovulatoria"; subtitle = "Sei nel periodo più fertile."; }
+        else { phase = "Fase Luteale"; subtitle = `Mancano ${cycleLen - day + 1} giorni al prossimo ciclo.`; }
+        document.getElementById('dash-phase').innerText = phase;
+        document.getElementById('dash-subtitle').innerText = subtitle;
+
+        const next = addDays(start, cycleLen);
+        document.getElementById('stat-next-period').innerText = fmtShort(next);
+        const ov = addDays(next, -14);
+        document.getElementById('stat-fertile').innerText = fmtRange(addDays(ov, -3), addDays(ov, 1));
     }
 
     function addStart(dateStr) {
-        const d = parseISO(dateStr);
-        const end = new Date(d); end.setDate(end.getDate() + 4);
-        appData.periodRanges.push({ start: dateStr, end: formatISO(end) });
+        if(!isValidISO(dateStr)) { alert('Seleziona una data valida.'); return false; }
+        if(findRangeContaining(dateStr)) { alert('Questo giorno fa già parte di un ciclo registrato.'); return false; }
+        let end = formatISO(addDays(parseISO(dateStr), appData.periodLength - 1));
+        // Non sovrapporre il nuovo ciclo a quello successivo già registrato
+        const nextRange = appData.periodRanges.filter(r => r.start > dateStr).sort((a,b) => a.start.localeCompare(b.start))[0];
+        if(nextRange && end >= nextRange.start) end = formatISO(addDays(parseISO(nextRange.start), -1));
+        appData.periodRanges.push({ start: dateStr, end });
         save();
+        return true;
     }
 
     function addEnd(dateStr) {
-        appData.periodRanges.sort((a,b) => b.start.localeCompare(a.start));
+        if(!isValidISO(dateStr)) { alert('Seleziona una data valida.'); return false; }
+        sortDesc();
         const target = appData.periodRanges.find(r => r.start <= dateStr);
-        if(target) target.end = dateStr;
+        if(!target || daysBetween(parseISO(target.start), parseISO(dateStr)) >= MAX_PERIOD_DAYS) {
+            alert('Nessun ciclo in corso a cui assegnare questa data di fine. Segna prima l\'inizio del ciclo.');
+            return false;
+        }
+        target.end = dateStr;
         save();
+        return true;
     }
 
     function markPeriodStartToday() { addStart(getTodayISO()); }
@@ -325,20 +386,25 @@
             while(cur <= end) { periodSet.add(formatISO(cur)); cur.setDate(cur.getDate() + 1); }
         });
         if(appData.periodRanges.length > 0) {
-            appData.periodRanges.sort((a,b) => a.start.localeCompare(b.start));
-            let lastS = parseISO(appData.periodRanges[appData.periodRanges.length-1].start);
-            for(let c=1; c<=3; c++) {
-                let ns = new Date(lastS); ns.setDate(ns.getDate() + appData.cycleLength * c);
-                for(let i=0; i<5; i++) { let d = new Date(ns); d.setDate(d.getDate()+i); predSet.add(formatISO(d)); }
-                let ov = new Date(ns); ov.setDate(ov.getDate() - 14); ovSet.add(formatISO(ov));
-                for(let f=-3; f<=1; f++) { let d = new Date(ov); d.setDate(d.getDate()+f); fertileSet.add(formatISO(d)); }
+            sortDesc();
+            const lastS = parseISO(appData.periodRanges[0].start);
+            // Previsioni per tutti i cicli futuri, fino alla fine del mese visualizzato
+            // (+14 giorni perché l'ovulazione di un ciclo che inizia il mese dopo può cadere in questo mese)
+            const viewEnd = new Date(year, month + 1, 14);
+            for(let c=1; c<=2000; c++) {
+                const ns = addDays(lastS, appData.cycleLength * c);
+                if(addDays(ns, -14 - 3) > viewEnd) break;
+                for(let i=0; i<appData.periodLength; i++) predSet.add(formatISO(addDays(ns, i)));
+                const ov = addDays(ns, -14); ovSet.add(formatISO(ov));
+                for(let f=-3; f<=1; f++) fertileSet.add(formatISO(addDays(ov, f)));
             }
         }
+        const todayStr = getTodayISO();
         const daysInMonth = new Date(year, month+1, 0).getDate();
         for(let i=1; i<=daysInMonth; i++) {
             const dStr = formatISO(new Date(year, month, i));
             const el = document.createElement('div'); el.className = 'cal-day'; el.innerText = i;
-            if(dStr === getTodayISO()) el.classList.add('today');
+            if(dStr === todayStr) el.classList.add('today');
             if(periodSet.has(dStr)) el.classList.add('period');
             else if(predSet.has(dStr)) el.classList.add('predicted-period');
             else if(ovSet.has(dStr)) el.classList.add('ovulation');
@@ -346,33 +412,89 @@
             el.onclick = () => {
                 selectedCalendarDate = dStr;
                 document.getElementById('selected-day-title').innerText = i + " " + document.getElementById('cal-month-title').innerText;
+                document.getElementById('remove-day-btn').classList.toggle('hidden', !findRangeContaining(dStr));
                 document.getElementById('day-action-modal').classList.add('active');
             };
             grid.appendChild(el);
         }
     }
 
-    function changeMonth(v) { currentDateView.setMonth(currentDateView.getMonth() + v); renderCalendar(); }
+    function changeMonth(v) { currentDateView.setDate(1); currentDateView.setMonth(currentDateView.getMonth() + v); renderCalendar(); }
     function closeDayActionModal() { document.getElementById('day-action-modal').classList.remove('active'); }
-    function setPeriodStartSelectedDay() { addStart(selectedCalendarDate); closeDayActionModal(); }
-    function setPeriodEndSelectedDay() { addEnd(selectedCalendarDate); closeDayActionModal(); }
-    function removeSelectedDayEntry() { appData.periodRanges = appData.periodRanges.filter(r => r.start !== selectedCalendarDate); save(); closeDayActionModal(); }
-    function openStartPregnancyModal() { document.getElementById('start-preg-modal').classList.add('active'); }
+    function setPeriodStartSelectedDay() { if(addStart(selectedCalendarDate)) closeDayActionModal(); }
+    function setPeriodEndSelectedDay() { if(addEnd(selectedCalendarDate)) closeDayActionModal(); }
+    function removeSelectedDayEntry() {
+        const r = findRangeContaining(selectedCalendarDate);
+        if(r && confirm(`Rimuovere il ciclo dal ${fmtShort(parseISO(r.start))} al ${fmtShort(parseISO(r.end))}?`)) {
+            appData.periodRanges = appData.periodRanges.filter(x => x !== r);
+            save();
+        }
+        closeDayActionModal();
+    }
+
+    function openDateModal(modalId, inputId) {
+        const input = document.getElementById(inputId);
+        input.max = getTodayISO();
+        if(!input.value) input.value = getTodayISO();
+        document.getElementById(modalId).classList.add('active');
+    }
+    function openStartPregnancyModal() { openDateModal('start-preg-modal', 'preg-start-date'); }
     function closeStartPregnancyModal() { document.getElementById('start-preg-modal').classList.remove('active'); }
-    function confirmStartPregnancy() { appData.isPregnant = true; appData.pregnancyStart = document.getElementById('preg-start-date').value; save(); closeStartPregnancyModal(); }
-    function openEndPregnancyModal() { document.getElementById('end-preg-modal').classList.add('active'); }
+    function confirmStartPregnancy() {
+        const v = document.getElementById('preg-start-date').value;
+        if(!isValidISO(v)) { alert('Seleziona una data.'); return; }
+        if(v > getTodayISO()) { alert('La data non può essere nel futuro.'); return; }
+        appData.isPregnant = true; appData.pregnancyStart = v; save(); closeStartPregnancyModal();
+    }
+    function openEndPregnancyModal() { openDateModal('end-preg-modal', 'preg-end-date'); }
     function closeEndPregnancyModal() { document.getElementById('end-preg-modal').classList.remove('active'); }
-    function confirmEndPregnancy() { appData.isPregnant = false; addStart(document.getElementById('preg-end-date').value); save(); closeEndPregnancyModal(); }
+    function confirmEndPregnancy() {
+        const v = document.getElementById('preg-end-date').value;
+        if(!isValidISO(v)) { alert('Seleziona una data.'); return; }
+        if(v > getTodayISO()) { alert('La data non può essere nel futuro.'); return; }
+        if(appData.pregnancyStart && v < appData.pregnancyStart) { alert('La data di fine è precedente all\'inizio della gravidanza.'); return; }
+        appData.isPregnant = false; appData.pregnancyStart = null;
+        // La data del parto fa da riferimento per il nuovo ciclo
+        if(!findRangeContaining(v)) addStart(v); else save();
+        closeEndPregnancyModal();
+    }
+
     function renderHistory() {
         const l = document.getElementById('history-list'); l.innerHTML = '';
-        appData.periodRanges.sort((a,b) => b.start.localeCompare(a.start)).forEach((r, i) => {
+        sortDesc();
+        if(appData.periodRanges.length === 0) { l.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem">Nessun ciclo registrato.</p>'; return; }
+        appData.periodRanges.forEach(r => {
             const div = document.createElement('div'); div.className = 'history-item';
-            div.innerHTML = `<span>${r.start} ➔ ${r.end}</span><button onclick="deleteHist(${i})" style="border:none;background:none;color:var(--primary)">🗑️</button>`;
+            const span = document.createElement('span');
+            span.innerText = `${r.start} ➔ ${r.end}`;
+            const btn = document.createElement('button');
+            btn.innerText = '🗑️';
+            btn.style.cssText = 'border:none;background:none;color:var(--primary);cursor:pointer';
+            btn.onclick = () => deleteHist(r.start);
+            div.append(span, btn);
             l.appendChild(div);
         });
     }
-    function deleteHist(i) { appData.periodRanges.splice(i, 1); save(); renderHistory(); }
-    function openSettings() { let v = prompt("Durata media ciclo:", appData.cycleLength); if(v) { appData.cycleLength = parseInt(v); save(); } }
+    function deleteHist(start) {
+        if(!confirm('Eliminare questo ciclo?')) return;
+        appData.periodRanges = appData.periodRanges.filter(r => r.start !== start);
+        save();
+    }
+
+    function askNumber(label, current, min, max) {
+        const v = prompt(`${label} (${min}-${max} giorni):`, current);
+        if(v === null) return null;
+        const n = parseInt(v, 10);
+        if(isNaN(n) || n < min || n > max) { alert(`Inserisci un numero tra ${min} e ${max}.`); return null; }
+        return n;
+    }
+    function openSettings() {
+        const c = askNumber('Durata media del ciclo', appData.cycleLength, 20, 45);
+        if(c !== null) appData.cycleLength = c;
+        const p = askNumber('Durata media delle mestruazioni', appData.periodLength, 2, 10);
+        if(p !== null) appData.periodLength = p;
+        save();
+    }
 </script>
 </body>
 </html>
